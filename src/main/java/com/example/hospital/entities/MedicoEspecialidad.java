@@ -6,7 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import java.time.LocalDate;
+import javax.persistence.ManyToOne;
+import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -14,5 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Data
 public class MedicoEspecialidad extends BaseEntity {
-    private LocalDate fechaDesdeMedicoEspecialidad;
+    private LocalDateTime fechaDesdeMedicoEspecialidad;
+    @ManyToOne
+    private Especialidad especialidad;
 }

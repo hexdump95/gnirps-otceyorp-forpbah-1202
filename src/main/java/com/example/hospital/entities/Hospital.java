@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -15,4 +17,10 @@ import javax.persistence.Entity;
 public class Hospital extends BaseEntity {
     private String nombreHospital;
     private String fechaBajaHospital;
+    private Integer telefonoHospital;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn
+    private Domicilio domicilio;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Consultorio> consultorioList = new ArrayList<>();
 }

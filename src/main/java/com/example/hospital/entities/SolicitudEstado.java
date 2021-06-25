@@ -6,7 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import java.time.LocalDate;
+import javax.persistence.ManyToOne;
+import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -14,6 +15,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Data
 public class SolicitudEstado extends BaseEntity {
-    private LocalDate fechaDesdeSolicitudEstado;
-    private LocalDate fechaHastaSolicitudEstado;
+    private LocalDateTime fechaDesdeSolicitudEstado;
+    private LocalDateTime fechaHastaSolicitudEstado;
+    @ManyToOne
+    private EstadoSolicitud estadoSolicitud;
 }

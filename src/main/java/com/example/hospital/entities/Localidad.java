@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -15,5 +15,5 @@ import java.time.LocalDate;
 @Data
 public class Localidad extends BaseEntity {
     private String nombreLocalidad;
-    private LocalDate fechaBajaLocalidad;
+    private LocalDateTime fechaBajaLocalidad;
 }
