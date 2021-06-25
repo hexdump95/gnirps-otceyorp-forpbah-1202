@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EstadoTurnoRepository extends JpaRepository<EstadoTurno, Long> {
+    EstadoTurno findByNombreEstadoTurno(String nombreEstadoTurno);
 }
