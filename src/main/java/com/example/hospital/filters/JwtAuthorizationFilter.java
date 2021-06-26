@@ -1,5 +1,8 @@
 package com.example.hospital.filters;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,16 +25,22 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         try {
-            if (request.getHeader(HttpHeaders.AUTHORIZATION).matches("Bearer a.a.a")) {
+            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (authHeader != null && authHeader.startsWith("Bearer ") && authHeader.split("\\.").length == 3) {
+                String jwt = authHeader.substring(7);
+                System.out.println(jwt);
+
+                DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256("secret"))
+                        .build().verify(jwt);
 
                 UsernamePasswordAuthenticationToken authRequest =
-                        new UsernamePasswordAuthenticationToken("f9537096-fd5a-4b98-b100-02ba4c8e266e", null, new ArrayList<>());
+                        new UsernamePasswordAuthenticationToken(decodedJWT.getSubject(), null, new ArrayList<>());
 
                 SecurityContextHolder.getContext().setAuthentication(authRequest);
 
                 chain.doFilter(request, response);
             }
-        }catch(Exception err) {
+        } catch (Exception err) {
             chain.doFilter(request, response);
         }
 

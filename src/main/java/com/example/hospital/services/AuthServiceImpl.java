@@ -35,7 +35,10 @@ public class AuthServiceImpl implements AuthService {
         Persona persona = personaRepository.findByUsuarioUsername(username);
         if(persona == null) throw new UsernameNotFoundException(username);
 
-        return new User(username, persona.getUsuario().getPassword(),
+        String userId = persona.getUsuario().getId().toString();
+        String password = persona.getUsuario().getPassword();
+
+        return new User(userId, password,
                 true, true, true,
         true, new ArrayList<>());
     }
