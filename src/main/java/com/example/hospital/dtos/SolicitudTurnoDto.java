@@ -13,8 +13,6 @@ import java.util.UUID;
 @ToString
 public class SolicitudTurnoDto {
     private Long id;
-    private UUID codSolicitud;
     private String derivacion;
     private EntidadDto especialidad;
-    private EntidadDto paciente;
 }

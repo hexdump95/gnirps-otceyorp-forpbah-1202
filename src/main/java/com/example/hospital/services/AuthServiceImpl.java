@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -23,6 +24,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String register(Persona persona) {
+        persona.getUsuario().setId(UUID.randomUUID());
         persona.getUsuario().setPassword(passwordEncoder.encode(persona.getUsuario().getPassword()));
         personaRepository.save(persona);
         return persona.getUsuario().getUsername();

@@ -1,29 +1,23 @@
 package com.example.hospital.entities;
 
-import com.example.hospital.entities.BaseEntity;
 import lombok.*;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@ToString
-public class Usuario extends BaseEntity {
-    @Getter
+@Data
+public class Usuario {
+    @Id private UUID id;
+    @Column(unique = true)
     private String username;
-    @ToString.Exclude @Setter // ...
     private String password;
-    @Getter
     private LocalDateTime fechaDesdeUsuario;
-    @Getter
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UsuarioRol> usuarioRolList = new ArrayList<>();
 }
