@@ -1,10 +1,11 @@
 package com.example.hospital.config;
 
+import com.example.hospital.Routes;
 import com.example.hospital.filters.JwtAuthenticationFilter;
 import com.example.hospital.filters.JwtAuthorizationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,21 +18,21 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
         http
                 .httpBasic().disable()
                 .formLogin().disable()
                 .csrf().disable()
                 .logout().disable()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
-                .anyRequest().authenticated().and()
                 .addFilterAt(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(authorizationFilter(), BasicAuthenticationFilter.class)
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .addFilterAt(new JwtAuthorizationFilter(authenticationManager()), BasicAuthenticationFilter.class)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        ;
     }
 
     @Bean
@@ -40,16 +41,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public UsernamePasswordAuthenticationFilter authenticationFilter() throws Exception {
-        UsernamePasswordAuthenticationFilter filter =
+    public JwtAuthenticationFilter authenticationFilter() throws Exception {
+        JwtAuthenticationFilter filter =
                 new JwtAuthenticationFilter(authenticationManager());
-        filter.setFilterProcessesUrl("/api/auth/login");
+        filter.setFilterProcessesUrl(Routes.LOGIN_URL);
         return filter;
-    }
-
-    @Bean
-    public BasicAuthenticationFilter authorizationFilter() throws Exception {
-        return new JwtAuthorizationFilter(authenticationManager());
     }
 
     @Override

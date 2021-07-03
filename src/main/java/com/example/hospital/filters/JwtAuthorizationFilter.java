@@ -6,6 +6,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -14,7 +16,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -24,26 +27,35 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        try {
-            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-            if (authHeader != null && authHeader.startsWith("Bearer ") && authHeader.split("\\.").length == 3) {
-                String jwt = authHeader.substring(7);
-                System.out.println(jwt);
 
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith("Bearer ") && authHeader.split("\\.").length == 3) {
+            String jwt = authHeader.substring(7);
+
+            try {
                 DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256("secret"))
                         .build().verify(jwt);
 
+                List<GrantedAuthority> authorities =
+                        decodedJWT.getClaim("rol").asList(String.class)
+                                .stream()
+                                .map(r -> "ROLE_" + r)
+                                .map(SimpleGrantedAuthority::new)
+                                .collect(Collectors.toList());
+
                 UsernamePasswordAuthenticationToken authRequest =
-                        new UsernamePasswordAuthenticationToken(decodedJWT.getSubject(), null, new ArrayList<>());
+                        new UsernamePasswordAuthenticationToken(decodedJWT.getSubject(),
+                                null,
+                                authorities
+                        );
 
                 SecurityContextHolder.getContext().setAuthentication(authRequest);
 
-                chain.doFilter(request, response);
+            } catch (Exception err) {
+                return;
             }
-        } catch (Exception err) {
-            chain.doFilter(request, response);
         }
-
+        chain.doFilter(request, response);
     }
 
 }

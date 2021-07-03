@@ -3,9 +3,9 @@ package com.example.hospital.dtos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @Data
-public class LoginDto {
+@NoArgsConstructor
+public class UsuarioDto {
     private String username;
     private String password;
 }
