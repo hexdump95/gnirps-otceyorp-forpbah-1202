@@ -1,135 +1,105 @@
 package com.example.hospital.controllers;
 
-import com.example.hospital.dtos.SolicitudTurnoDto;
-import com.example.hospital.entities.EstadoSolicitud;
-import com.example.hospital.entities.Persona;
-import com.example.hospital.entities.SolicitudEstado;
-import com.example.hospital.entities.SolicitudTurno;
-import com.example.hospital.repositories.EstadoSolicitudRepository;
-import com.example.hospital.repositories.PersonaRepository;
-import com.example.hospital.repositories.SolicitudTurnoRepository;
+import com.example.hospital.Routes;
+import com.example.hospital.dtos.DetalleSolicitudDto;
+import com.example.hospital.dtos.SolicitarTurnoDto;
+import com.example.hospital.dtos.SolicitudDto;
+import com.example.hospital.exceptions.NotFoundException;
+import com.example.hospital.services.SolicitudTurnoService;
 import io.swagger.v3.oas.annotations.Operation;
-import org.modelmapper.ModelMapper;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
-@RequestMapping(path = "/solicitudturnos", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Solicitud Turno")
+@SecurityRequirement(name = "bearer-key")
+@RequestMapping(path = Routes.SOLICITUDTURNO_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class SolicitudTurnoController {
-    private final SolicitudTurnoRepository solicitudTurnoRepository;
-    private final EstadoSolicitudRepository estadoSolicitudRepository;
-    private final PersonaRepository personaRepository;
-    private final ModelMapper modelMapper;
+    private final SolicitudTurnoService solicitudTurnoService;
 
-    public SolicitudTurnoController(
-            SolicitudTurnoRepository solicitudTurnoRepository,
-            EstadoSolicitudRepository estadoSolicitudRepository,
-            PersonaRepository personaRepository,
-            ModelMapper modelMapper) {
-        this.solicitudTurnoRepository = solicitudTurnoRepository;
-        this.estadoSolicitudRepository = estadoSolicitudRepository;
-        this.personaRepository = personaRepository;
-        this.modelMapper = modelMapper;
+    public SolicitudTurnoController(SolicitudTurnoService solicitudTurnoService) {
+        this.solicitudTurnoService = solicitudTurnoService;
     }
 
+    @PreAuthorize(value = "hasAnyRole('MEDICO', 'RECEPCIONISTA', 'ADMIN')")
+    @Operation
+    @GetMapping("/admin") // TODO
+    public List<SolicitudDto> findAllSolicitudTurnos(
+            @RequestParam(defaultValue = "false") boolean showAll
+    ) {
+        return solicitudTurnoService.buscarTodasSolicitudTurno(showAll);
+    }
+
+    @PreAuthorize(value = "isAuthenticated()")
     @Operation
     @GetMapping
-    public List<SolicitudTurno> findAllSolicitudTurnos(
-            @CurrentSecurityContext(expression="authentication.name") String userId
+    public List<DetalleSolicitudDto> findAllMySolicitudTurnos(
+            @Parameter(hidden = true) @CurrentSecurityContext(expression = "authentication.name") String userId
     ) {
-        System.out.println(userId);
-        return solicitudTurnoRepository.findAll();
+        return solicitudTurnoService.buscarMisSolicitudTurno(userId);
     }
 
+    @PreAuthorize(value = "hasAnyRole('MEDICO', 'RECEPCIONISTA', 'ADMIN')")
+    @Operation
+    @GetMapping("admin/{id}") // TODO
+    public ResponseEntity<DetalleSolicitudDto> findOneSolicitudTurno(@PathVariable Long id)
+            throws NotFoundException {
+        DetalleSolicitudDto entity = solicitudTurnoService.findOneSolicitudTurno(id);
+        if (entity != null)
+            return ResponseEntity.ok(entity);
+        else throw new NotFoundException(id);
+    }
+
+    @PreAuthorize(value = "hasAnyRole('SOCIO', 'MEDICO', 'RECEPCIONISTA', 'ADMIN')")
     @Operation
     @GetMapping("/{id}")
-    public ResponseEntity<SolicitudTurno> findOneSolicitudTurno(@PathVariable Long id) {
-        return solicitudTurnoRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(); // TODO
+    public ResponseEntity<DetalleSolicitudDto> findOneSolicitudTurnoSocio(
+            @PathVariable Long id,
+            @Parameter(hidden = true) @CurrentSecurityContext(expression = "authentication.name") String userId
+    ) throws NotFoundException {
+        DetalleSolicitudDto entity = solicitudTurnoService.findOneSolicitudTurnoPaciente(id, userId);
+        if (entity != null)
+            return ResponseEntity.ok(entity);
+        else throw new NotFoundException(id);
     }
 
+    @PreAuthorize(value = "hasAnyRole('SOCIO', 'MEDICO', 'RECEPCIONISTA', 'ADMIN')")
     @Operation(summary = "Solicitar turno")
     @PostMapping
-    public ResponseEntity<SolicitudTurno> saveSolicitudTurno(
-            @CurrentSecurityContext(expression="authentication.name") String userId,
-            @RequestBody SolicitudTurnoDto solicitudTurnoDto
+    public ResponseEntity<DetalleSolicitudDto> saveSolicitudTurno(
+            @Parameter(hidden = true) @CurrentSecurityContext(expression = "authentication.name") String userId,
+            @RequestBody SolicitarTurnoDto solicitudTurno
     ) {
-        SolicitudTurno solicitudTurno = modelMapper.map(solicitudTurnoDto, SolicitudTurno.class);
-
-        EstadoSolicitud estadoSolicitud = estadoSolicitudRepository.findByNombreEstadoSolicitud("Pendiente");
-
-        Persona paciente = personaRepository.findByUsuarioId(UUID.fromString(userId));
-
-        SolicitudEstado se = new SolicitudEstado();
-        se.setFechaDesdeSolicitudEstado(LocalDateTime.now());
-        se.setEstadoSolicitud(estadoSolicitud);
-
-        solicitudTurno.setCodSolicitud(UUID.randomUUID());
-        solicitudTurno.setFechaSolicitudTurno(LocalDateTime.now());
-        solicitudTurno.getSolicitudEstadoList().add(se);
-        solicitudTurno.setPaciente(paciente);
-
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(solicitudTurnoRepository.save(solicitudTurno));
+                .body(solicitudTurnoService.solicitarTurno(solicitudTurno, userId));
     }
 
+    @PreAuthorize(value = "hasAnyRole('MEDICO', 'RECEPCIONISTA', 'ADMIN')")
     @Operation(summary = "Rechazar Solicitud de Turno")
-    @PutMapping("/{id}")
-    public ResponseEntity<SolicitudTurno> putSolicitudTurno(@PathVariable Long id) {
-        return solicitudTurnoRepository.findById(id)
-                .map(st -> {
-                    boolean ultimoEstadoEsPendiente = false;
-                    LocalDateTime fechaHoraActual = LocalDateTime.now();
-                    for (SolicitudEstado se : st.getSolicitudEstadoList()) {
-                        if (se.getEstadoSolicitud().getNombreEstadoSolicitud().matches("Pendiente")
-                                && se.getFechaHastaSolicitudEstado() == null) {
-                            se.setFechaHastaSolicitudEstado(fechaHoraActual);
-                            ultimoEstadoEsPendiente = true;
-                            break;
-                        }
-                    }
-                    if(ultimoEstadoEsPendiente){
-
-                        EstadoSolicitud rechazado = estadoSolicitudRepository.findByNombreEstadoSolicitud("Rechazado");
-                        SolicitudEstado solicitudEstadoRechazado = new SolicitudEstado();
-                        solicitudEstadoRechazado.setFechaDesdeSolicitudEstado(fechaHoraActual);
-                        solicitudEstadoRechazado.setEstadoSolicitud(rechazado);
-                        st.getSolicitudEstadoList().add(solicitudEstadoRechazado);
-                    }
-                    return solicitudTurnoRepository.save(st);
-                })
-                .map(ResponseEntity::ok)
-                .orElseThrow(); // TODO
+    @PutMapping("/{id}/rechazar")
+    public ResponseEntity<DetalleSolicitudDto> rechazarSolicitudTurno(@PathVariable Long id) throws NotFoundException {
+        DetalleSolicitudDto entity = solicitudTurnoService.rechazarSolicitud(id);
+        if (entity != null)
+            return ResponseEntity.ok(entity);
+        else throw new NotFoundException(id);
     }
 
+    @PreAuthorize(value = "hasAnyRole('SOCIO', 'MEDICO', 'RECEPCIONISTA', 'ADMIN')")
     @Operation(summary = "Cancelar Solicitud de Turno")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> cancelarSolicitudTurno(@PathVariable Long id) {
-        return solicitudTurnoRepository.findById(id)
-                .map(st -> {
-                    boolean ultimoEstadoEsPendiente = false;
-                    LocalDateTime fechaHoraActual = LocalDateTime.now();
-                    for (SolicitudEstado se : st.getSolicitudEstadoList()) {
-                        if (se.getEstadoSolicitud().getNombreEstadoSolicitud().matches("Pendiente")
-                                && se.getFechaHastaSolicitudEstado() == null) {
-                            se.setFechaHastaSolicitudEstado(fechaHoraActual);
-                            ultimoEstadoEsPendiente = true;
-                            break;
-                        }
-                    }
-                    if(ultimoEstadoEsPendiente) {
-                        solicitudTurnoRepository.delete(st);
-                    }
-                    return ResponseEntity.noContent().build();
-                })
-                .orElseThrow(); // TODO
+    @DeleteMapping("/{id}/cancelar")
+    public ResponseEntity<Object> cancelarSolicitudTurno(@PathVariable Long id) throws NotFoundException {
+        boolean isDeleted = solicitudTurnoService.cancelarSolicitud(id);
+        if (isDeleted)
+            return ResponseEntity.noContent().build();
+        else throw new NotFoundException(id);
     }
 }
