@@ -19,7 +19,6 @@ public class Hospital extends BaseEntity {
     private String fechaBajaHospital;
     private Integer telefonoHospital;
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn
     private Domicilio domicilio;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Consultorio> consultorioList = new ArrayList<>();
