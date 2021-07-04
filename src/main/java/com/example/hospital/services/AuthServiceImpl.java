@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
         this.modelMapper = modelMapper;
     }
 
-    @Scheduled(cron = "0 0 0 0/1 * *")
+    @Scheduled(cron = "0 0 1 * * *")
     public void deleteUser() {
         LocalDateTime time = LocalDateTime.now().minusDays(60);
         List<Persona> personas = personaRepository
