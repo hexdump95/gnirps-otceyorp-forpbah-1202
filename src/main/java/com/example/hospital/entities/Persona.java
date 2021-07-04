@@ -20,10 +20,9 @@ public class Persona extends BaseEntity {
     private Integer telefonoPersona;
     private Integer dniPersona;
     private String emailPersona;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Usuario usuario;
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn
     private Domicilio domicilio;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MedicoEspecialidad> medicoEspecialidadList = new ArrayList<>();

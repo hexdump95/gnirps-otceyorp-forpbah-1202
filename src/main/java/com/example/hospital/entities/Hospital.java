@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
 @Data
 public class Hospital extends BaseEntity {
     private String nombreHospital;
-    private String fechaBajaHospital;
+    private LocalDateTime fechaBajaHospital;
     private Integer telefonoHospital;
     @OneToOne(cascade = CascadeType.ALL)
     private Domicilio domicilio;
