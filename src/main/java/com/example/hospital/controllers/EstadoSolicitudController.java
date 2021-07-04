@@ -1,64 +1,77 @@
 package com.example.hospital.controllers;
 
+import com.example.hospital.Routes;
 import com.example.hospital.entities.EstadoSolicitud;
-import com.example.hospital.repositories.EstadoSolicitudRepository;
+import com.example.hospital.exceptions.NotFoundException;
+import com.example.hospital.services.EstadoSolicitudService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @Tag(name = "ABM EstadoSolicitud")
-@RequestMapping(path = "/estadosolicitudes", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = Routes.ESTADOSOLICITUD_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class EstadoSolicitudController {
-    private final EstadoSolicitudRepository estadoSolicitudRepository;
+    private final EstadoSolicitudService estadoSolicitudService;
 
-    public EstadoSolicitudController(EstadoSolicitudRepository estadoSolicitudRepository) {
-        this.estadoSolicitudRepository = estadoSolicitudRepository;
+    public EstadoSolicitudController(EstadoSolicitudService estadoSolicitudService) {
+        this.estadoSolicitudService = estadoSolicitudService;
     }
 
-    @Operation
+    @PreAuthorize(value = "hasAnyRole('MEDICO', 'RECEPCIONISTA', 'ADMIN')")
+    @Operation(summary = "Listar EstadoSolicitudes")
     @GetMapping
-    public List<EstadoSolicitud> findAllEstadoSolicitudes() {
-        return estadoSolicitudRepository.findAll();
+    public List<EstadoSolicitud> findAllEstadoSolicitudes(
+            @RequestParam(defaultValue = "false") boolean showDeleted
+    ) {
+        return estadoSolicitudService.findAll(showDeleted);
     }
 
-    @Operation
+    @PreAuthorize(value = "hasAnyRole('MEDICO', 'RECEPCIONISTA', 'ADMIN')")
+    @Operation(summary = "Detalle EstadoSolicitud")
     @GetMapping("/{id}")
-    public ResponseEntity<EstadoSolicitud> findOneEstadoSolicitud(@PathVariable Long id) {
-        return estadoSolicitudRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(); // TODO
+    public ResponseEntity<EstadoSolicitud> findOneEstadoSolicitud(@PathVariable Long id) throws NotFoundException {
+        EstadoSolicitud estadoSolicitud = estadoSolicitudService.findById(id);
+        if(estadoSolicitud != null)
+            return ResponseEntity.ok(estadoSolicitud);
+        else throw new NotFoundException(id);
     }
 
-    @Operation
+    @PreAuthorize(value = "hasAnyRole('ADMIN')")
+    @Operation(summary = "Crear EstadoSolicitud")
+    @SecurityRequirement(name = "bearer-key")
     @PostMapping
     public ResponseEntity<EstadoSolicitud> saveEstadoSolicitud(@RequestBody EstadoSolicitud estadoSolicitud) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(estadoSolicitudRepository.save(estadoSolicitud));
+                .body(estadoSolicitudService.save(estadoSolicitud));
     }
 
-    @Operation
+    @PreAuthorize(value = "hasAnyRole('ADMIN')")
+    @Operation(summary = "Editar EstadoSolicitud")
+    @SecurityRequirement(name = "bearer-key")
     @PutMapping("/{id}")
-    public ResponseEntity<EstadoSolicitud> putEstadoSolicitud(@PathVariable Long id, @RequestBody EstadoSolicitud estadoSolicitud){
-        return estadoSolicitudRepository.findById(id)
-                .map(es -> estadoSolicitudRepository.save(estadoSolicitud))
-                .map(ResponseEntity::ok)
-                .orElseThrow(); // TODO
+    public ResponseEntity<EstadoSolicitud> putEstadoSolicitud(@PathVariable Long id, @RequestBody EstadoSolicitud estadoSolicitud) throws NotFoundException {
+        EstadoSolicitud entity = estadoSolicitudService.update(id, estadoSolicitud);
+        if(entity != null)
+            return ResponseEntity.ok(entity);
+        else throw new NotFoundException(id);
     }
 
-    @Operation
+    @PreAuthorize(value = "hasAnyRole('ADMIN')")
+    @Operation(summary = "Borrar EstadoSolicitud")
+    @SecurityRequirement(name = "bearer-key")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEstadoSolicitud(@PathVariable Long id) {
-        return estadoSolicitudRepository.findById(id)
-                .map(es -> {
-                    estadoSolicitudRepository.delete(es);
-                    return ResponseEntity.noContent().build();
-                })
-                .orElseThrow(); // TODO
+    public ResponseEntity<Object> deleteEstadoSolicitud(@PathVariable Long id) throws NotFoundException {
+        EstadoSolicitud entity = estadoSolicitudService.delete(id);
+        if(entity != null)
+            return ResponseEntity.ok(entity);
+        else throw new NotFoundException(id);
     }
 }
