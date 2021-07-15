@@ -17,6 +17,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "ABM Localidad")
+@SecurityRequirement(name = "bearer-key")
 @RequestMapping(path = Routes.LOCALIDAD_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class LocalidadController {
     private final LocalidadService localidadService;
@@ -25,7 +26,7 @@ public class LocalidadController {
         this.localidadService = localidadService;
     }
 
-    @PreAuthorize(value = "isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Listar Localidades")
     @GetMapping
     public List<Localidad> findAllLocalidades(
@@ -34,7 +35,7 @@ public class LocalidadController {
         return localidadService.findAll(showDeleted);
     }
 
-    @PreAuthorize(value = "isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Detalle Localidad")
     @GetMapping("/{id}")
     public ResponseEntity<Localidad> findOneLocalidad(@PathVariable Long id) throws NotFoundException {
@@ -46,7 +47,6 @@ public class LocalidadController {
 
     @PreAuthorize(value = "hasAnyRole('ADMIN')")
     @Operation(summary = "Crear Localidad")
-    @SecurityRequirement(name = "bearer-key")
     @PostMapping
     public ResponseEntity<Localidad> saveLocalidad(@RequestBody Localidad localidad) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -55,7 +55,6 @@ public class LocalidadController {
 
     @PreAuthorize(value = "hasAnyRole('ADMIN')")
     @Operation(summary = "Editar Localidad")
-    @SecurityRequirement(name = "bearer-key")
     @PutMapping("/{id}")
     public ResponseEntity<Localidad> putLocalidad(@PathVariable Long id, @RequestBody Localidad localidad) throws NotFoundException {
         Localidad entity = localidadService.update(id, localidad);
@@ -66,7 +65,6 @@ public class LocalidadController {
 
     @PreAuthorize(value = "hasAnyRole('ADMIN')")
     @Operation(summary = "Borrar Localidad")
-    @SecurityRequirement(name = "bearer-key")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteLocalidad(@PathVariable Long id) throws NotFoundException {
         Localidad entity = localidadService.delete(id);

@@ -1,13 +1,11 @@
 package com.example.hospital.filters;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.hospital.services.JwtService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -17,12 +15,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+    private final JwtService jwtService;
+
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtService jwtService) {
         super(authenticationManager);
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -30,18 +30,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader != null && authHeader.startsWith("Bearer ") && authHeader.split("\\.").length == 3) {
-            String jwt = authHeader.substring(7);
 
             try {
-                DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256("secret"))
-                        .build().verify(jwt);
+                DecodedJWT decodedJWT = jwtService.decodeJwt(authHeader);
 
                 List<GrantedAuthority> authorities =
-                        decodedJWT.getClaim("rol").asList(String.class)
-                                .stream()
-                                .map(r -> "ROLE_" + r)
-                                .map(SimpleGrantedAuthority::new)
-                                .collect(Collectors.toList());
+                        jwtService.getDecodedAuthorities(decodedJWT);
 
                 UsernamePasswordAuthenticationToken authRequest =
                         new UsernamePasswordAuthenticationToken(decodedJWT.getSubject(),
@@ -51,10 +45,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authRequest);
 
+                boolean isJwtCloseToExpire = jwtService.isJwtCloseToExpire(decodedJWT);
+                if (isJwtCloseToExpire){
+                    response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtService.updateJwt(decodedJWT));
+                }
             } catch (Exception err) {
                 return;
             }
         }
+
         chain.doFilter(request, response);
     }
 

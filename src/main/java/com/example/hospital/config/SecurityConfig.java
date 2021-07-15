@@ -3,6 +3,7 @@ package com.example.hospital.config;
 import com.example.hospital.Routes;
 import com.example.hospital.filters.JwtAuthenticationFilter;
 import com.example.hospital.filters.JwtAuthorizationFilter;
+import com.example.hospital.services.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -21,16 +22,23 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final JwtService jwtService;
+
+    public SecurityConfig(JwtService jwtService) {
+        this.jwtService = jwtService;
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http
                 .httpBasic().disable()
                 .formLogin().disable()
+                .cors().and()
                 .csrf().disable()
                 .logout().disable()
                 .addFilterAt(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new JwtAuthorizationFilter(authenticationManager()), BasicAuthenticationFilter.class)
+                .addFilterAt(new JwtAuthorizationFilter(authenticationManager(), jwtService), BasicAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         ;
     }
@@ -43,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public JwtAuthenticationFilter authenticationFilter() throws Exception {
         JwtAuthenticationFilter filter =
-                new JwtAuthenticationFilter(authenticationManager());
+                new JwtAuthenticationFilter(authenticationManager(), jwtService);
         filter.setFilterProcessesUrl(Routes.LOGIN_URL);
         return filter;
     }

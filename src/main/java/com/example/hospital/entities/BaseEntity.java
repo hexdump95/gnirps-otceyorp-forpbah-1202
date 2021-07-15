@@ -1,6 +1,5 @@
 package com.example.hospital.entities;
 
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +13,6 @@ import javax.persistence.MappedSuperclass;
 @Setter
 public abstract class BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 }
