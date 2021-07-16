@@ -1,8 +1,8 @@
 package com.example.hospital.controllers;
 
 import com.example.hospital.Routes;
-import com.example.hospital.dtos.RegistrarPersonaDto;
-import com.example.hospital.dtos.UsuarioDto;
+import com.example.hospital.dtos.SignupUsuarioDto;
+import com.example.hospital.dtos.LoginUsuarioDto;
 import com.example.hospital.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,15 +28,15 @@ public class AuthController {
 
     @Operation(summary = "Registrar usuario")
     @PostMapping(Routes.REGISTER_URL)
-    public ResponseEntity<Map<String, String>> register(@RequestBody RegistrarPersonaDto personaDto) {
-        String username = authService.register(personaDto);
+    public ResponseEntity<Map<String, String>> register(@RequestBody SignupUsuarioDto usuarioDto) {
+        String username = authService.register(usuarioDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Collections.singletonMap("mensaje", "usuario "+username+" creado!"));
     }
 
     @Operation(summary = "Login usuario")
     @PostMapping(Routes.LOGIN_URL)
-    public void login(@RequestBody UsuarioDto loginDto) {
+    public void login(@RequestBody LoginUsuarioDto loginDto) {
         throw new UnsupportedOperationException();
     }
 

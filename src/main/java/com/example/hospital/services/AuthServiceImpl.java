@@ -1,7 +1,8 @@
 package com.example.hospital.services;
 
-import com.example.hospital.dtos.RegistrarPersonaDto;
+import com.example.hospital.dtos.SignupUsuarioDto;
 import com.example.hospital.entities.Persona;
+import com.example.hospital.entities.Usuario;
 import com.example.hospital.entities.UsuarioRol;
 import com.example.hospital.repositories.PersonaRepository;
 import org.modelmapper.ModelMapper;
@@ -23,14 +24,11 @@ import java.util.stream.Collectors;
 public class AuthServiceImpl implements AuthService {
     private final PersonaRepository personaRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ModelMapper modelMapper;
 
     public AuthServiceImpl(PersonaRepository personaRepository,
-                           PasswordEncoder passwordEncoder,
-                           ModelMapper modelMapper) {
+                           PasswordEncoder passwordEncoder) {
         this.personaRepository = personaRepository;
         this.passwordEncoder = passwordEncoder;
-        this.modelMapper = modelMapper;
     }
 
     @Scheduled(cron = "0 0 1 * * *")
@@ -42,10 +40,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String register(RegistrarPersonaDto personaDto) {
-        Persona persona = modelMapper.map(personaDto, Persona.class);
-        persona.getUsuario().setId(UUID.randomUUID());
-        persona.getUsuario().setPassword(passwordEncoder.encode(persona.getUsuario().getPassword()));
+    public String register(SignupUsuarioDto usuarioDto) {
+        Usuario usuario = new Usuario();
+        usuario.setId(UUID.randomUUID());
+        usuario.setUsername(usuarioDto.getPassword());
+        usuario.setEmail(usuarioDto.getEmail());
+        usuario.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
+
+        Persona persona = new Persona();
+        persona.setUsuario(usuario);
+
         personaRepository.save(persona);
         return persona.getUsuario().getUsername();
     }

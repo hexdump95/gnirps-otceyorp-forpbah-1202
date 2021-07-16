@@ -1,6 +1,6 @@
 package com.example.hospital.filters;
 
-import com.example.hospital.dtos.UsuarioDto;
+import com.example.hospital.dtos.LoginUsuarioDto;
 import com.example.hospital.services.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
-            UsuarioDto loginDto = new ObjectMapper().readValue(request.getInputStream(), UsuarioDto.class);
+            LoginUsuarioDto loginDto = new ObjectMapper().readValue(request.getInputStream(), LoginUsuarioDto.class);
             UsernamePasswordAuthenticationToken authRequest =
                     new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
             return this.getAuthenticationManager().authenticate(authRequest);

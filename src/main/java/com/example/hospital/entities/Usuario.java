@@ -21,6 +21,8 @@ public class Usuario {
     @Column(unique = true)
     private String username;
     private String password;
+    @Column(unique = true)
+    private String email;
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime fechaDesdeUsuario;

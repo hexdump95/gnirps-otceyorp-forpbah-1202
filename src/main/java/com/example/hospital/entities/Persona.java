@@ -19,7 +19,6 @@ public class Persona extends BaseEntity {
     private String apellidoPersona;
     private Integer telefonoPersona;
     private Integer dniPersona;
-    private String emailPersona;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Usuario usuario;
     @OneToOne(cascade = CascadeType.ALL)
