@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class ErrorMessage {
     private Integer code;
+    private String errorType;
     private String url;
     private String message;
 }
