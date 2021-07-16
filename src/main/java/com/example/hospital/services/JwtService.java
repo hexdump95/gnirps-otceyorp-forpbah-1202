@@ -3,6 +3,7 @@ package com.example.hospital.services;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,6 +15,16 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtService {
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.expiresAtMinutes}")
+    private Long expiresAt;
+
+    @Value("${jwt.updateAtMinutes}")
+    private Long updateAt;
+
     public String createToken(Authentication auth){
         Date dateNow = new Date();
 
@@ -24,14 +35,14 @@ public class JwtService {
         return JWT.create()
                 .withIssuer("hexdump95")
                 .withSubject(auth.getName())
-                .withExpiresAt(new Date(dateNow.getTime() + 10 * 60 * 1000))
+                .withExpiresAt(new Date(dateNow.getTime() + expiresAt * 60 * 1000))
                 .withClaim("rol", roles)
-                .sign(Algorithm.HMAC256("secret"));
+                .sign(Algorithm.HMAC256(jwtSecret));
     }
 
     public DecodedJWT decodeJwt(String authHeader) {
         String jwt = authHeader.substring(7);
-        return JWT.require(Algorithm.HMAC256("secret"))
+        return JWT.require(Algorithm.HMAC256(jwtSecret))
                 .build().verify(jwt);
     }
 
@@ -53,14 +64,14 @@ public class JwtService {
         return JWT.create()
                 .withIssuer("hexdump95")
                 .withSubject(decodedJWT.getSubject())
-                .withExpiresAt(new Date(dateNow.getTime() + 10 * 60 * 1000))
+                .withExpiresAt(new Date(dateNow.getTime() + expiresAt * 60 * 1000))
                 .withClaim("rol", roles)
-                .sign(Algorithm.HMAC256("secret"));
+                .sign(Algorithm.HMAC256(jwtSecret));
     }
 
     public boolean isJwtCloseToExpire(DecodedJWT decodedJWT) {
         Long dateNow = new Date().getTime();
         Long jwtExpiresAt = decodedJWT.getExpiresAt().getTime();
-        return jwtExpiresAt - dateNow < 5 * 60 * 1000; // 5 minutes
+        return jwtExpiresAt - dateNow < updateAt * 60 * 1000; // 5 minutes
     }
 }

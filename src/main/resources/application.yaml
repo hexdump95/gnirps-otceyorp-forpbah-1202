@@ -14,3 +14,7 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: create-drop
+jwt:
+  secret: "qiidYo2csV+9RUE0EY+KKAQ0UL4wVZW+oqsRbhg9MjbduBReOjPEuzCknTJbZNZlyxV0G9/Xt62KsY3tqTg0MrLpE1T/CSlkH1KS9ish/unFR4vmifv/vv6yRGCppPMVIU8KusVsp3Qe6nUoxvwaFYcfmVd3ET56J5AFoIZuJhFqcae+BMGjCdi+y9NEsmQF3PTb/Jl2IoethIxb/9PIcgZSU5CGZuaQPT4Rgg=="
+  expiresAtMinutes: 10
+  updateAtMinutes: 5
