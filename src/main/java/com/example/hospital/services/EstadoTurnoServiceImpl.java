@@ -1,6 +1,6 @@
 package com.example.hospital.services;
 
-import com.example.hospital.entities.EstadoTurno;
+import com.example.hospital.entities.AppointmentStatus;
 import com.example.hospital.repositories.EstadoTurnoRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,37 +16,37 @@ public class EstadoTurnoServiceImpl implements EstadoTurnoService {
     }
 
     @Override
-    public List<EstadoTurno> findAll(boolean showDeleted) {
+    public List<AppointmentStatus> findAll(boolean showDeleted) {
         if(showDeleted)
         return estadoTurnoRepository.findAll();
-        else return estadoTurnoRepository.findByFechaBajaEstadoTurnoIsNull();
+        else return estadoTurnoRepository.findByDeletedAtIsNull();
     }
 
     @Override
-    public EstadoTurno findById(Long id) {
+    public AppointmentStatus findById(Long id) {
         return estadoTurnoRepository
                 .findById(id)
                 .orElse(null);
     }
 
     @Override
-    public EstadoTurno save(EstadoTurno estadoTurno) {
+    public AppointmentStatus save(AppointmentStatus appointmentStatus) {
         return estadoTurnoRepository
-                .save(estadoTurno);
+                .save(appointmentStatus);
     }
 
     @Override
-    public EstadoTurno update(Long id, EstadoTurno estadoTurno) {
+    public AppointmentStatus update(Long id, AppointmentStatus appointmentStatus) {
         return estadoTurnoRepository.findById(id)
-                .map(et -> estadoTurnoRepository.save(estadoTurno))
+                .map(et -> estadoTurnoRepository.save(appointmentStatus))
                 .orElse(null);
     }
 
     @Override
-    public EstadoTurno delete(Long id) {
+    public AppointmentStatus delete(Long id) {
         return estadoTurnoRepository.findById(id)
                 .map(et -> {
-                    et.setFechaBajaEstadoTurno(LocalDateTime.now());
+                    et.setDeletedAt(LocalDateTime.now());
                     return estadoTurnoRepository.save(et);
                 }).orElse(null);
     }

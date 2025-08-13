@@ -1,7 +1,7 @@
 package com.example.hospital.controllers;
 
 import com.example.hospital.Routes;
-import com.example.hospital.entities.EstadoSolicitud;
+import com.example.hospital.entities.RequestStatus;
 import com.example.hospital.exceptions.NotFoundException;
 import com.example.hospital.services.EstadoSolicitudService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +28,7 @@ public class EstadoSolicitudController {
     @PreAuthorize(value = "hasAnyRole('MEDICO', 'RECEPCIONISTA', 'ADMIN')")
     @Operation(summary = "Listar EstadoSolicitudes")
     @GetMapping
-    public List<EstadoSolicitud> findAllEstadoSolicitudes(
+    public List<RequestStatus> findAllEstadoSolicitudes(
             @RequestParam(defaultValue = "false") boolean showDeleted
     ) {
         return estadoSolicitudService.findAll(showDeleted);
@@ -37,8 +37,8 @@ public class EstadoSolicitudController {
     @PreAuthorize(value = "hasAnyRole('MEDICO', 'RECEPCIONISTA', 'ADMIN')")
     @Operation(summary = "Detalle EstadoSolicitud")
     @GetMapping("/{id}")
-    public ResponseEntity<EstadoSolicitud> findOneEstadoSolicitud(@PathVariable Long id) throws NotFoundException {
-        EstadoSolicitud estadoSolicitud = estadoSolicitudService.findById(id);
+    public ResponseEntity<RequestStatus> findOneEstadoSolicitud(@PathVariable Long id) throws NotFoundException {
+        RequestStatus estadoSolicitud = estadoSolicitudService.findById(id);
         if(estadoSolicitud != null)
             return ResponseEntity.ok(estadoSolicitud);
         else throw new NotFoundException(id);
@@ -48,7 +48,7 @@ public class EstadoSolicitudController {
     @Operation(summary = "Crear EstadoSolicitud")
     @SecurityRequirement(name = "bearer-key")
     @PostMapping
-    public ResponseEntity<EstadoSolicitud> saveEstadoSolicitud(@RequestBody EstadoSolicitud estadoSolicitud) {
+    public ResponseEntity<RequestStatus> saveEstadoSolicitud(@RequestBody RequestStatus estadoSolicitud) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(estadoSolicitudService.save(estadoSolicitud));
     }
@@ -57,8 +57,8 @@ public class EstadoSolicitudController {
     @Operation(summary = "Editar EstadoSolicitud")
     @SecurityRequirement(name = "bearer-key")
     @PutMapping("/{id}")
-    public ResponseEntity<EstadoSolicitud> putEstadoSolicitud(@PathVariable Long id, @RequestBody EstadoSolicitud estadoSolicitud) throws NotFoundException {
-        EstadoSolicitud entity = estadoSolicitudService.update(id, estadoSolicitud);
+    public ResponseEntity<RequestStatus> putEstadoSolicitud(@PathVariable Long id, @RequestBody RequestStatus estadoSolicitud) throws NotFoundException {
+        RequestStatus entity = estadoSolicitudService.update(id, estadoSolicitud);
         if(entity != null)
             return ResponseEntity.ok(entity);
         else throw new NotFoundException(id);
@@ -69,7 +69,7 @@ public class EstadoSolicitudController {
     @SecurityRequirement(name = "bearer-key")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteEstadoSolicitud(@PathVariable Long id) throws NotFoundException {
-        EstadoSolicitud entity = estadoSolicitudService.delete(id);
+        RequestStatus entity = estadoSolicitudService.delete(id);
         if(entity != null)
             return ResponseEntity.ok(entity);
         else throw new NotFoundException(id);

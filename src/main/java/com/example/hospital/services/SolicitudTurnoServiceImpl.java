@@ -1,8 +1,8 @@
 package com.example.hospital.services;
 
-import com.example.hospital.dtos.DetalleSolicitudDto;
-import com.example.hospital.dtos.SolicitarTurnoDto;
-import com.example.hospital.dtos.SolicitudDto;
+import com.example.hospital.dtos.RequestDetailsDto;
+import com.example.hospital.dtos.RequestAppointmentDto;
+import com.example.hospital.dtos.RequestDto;
 import com.example.hospital.entities.*;
 import com.example.hospital.repositories.EstadoSolicitudRepository;
 import com.example.hospital.repositories.PersonaRepository;
@@ -34,81 +34,81 @@ public class SolicitudTurnoServiceImpl implements SolicitudTurnoService {
     }
 
     @Override
-    public List<SolicitudDto> buscarTodasSolicitudTurno(boolean showAll) {
-        List<SolicitudTurno> solicitudes;
+    public List<RequestDto> buscarTodasSolicitudTurno(boolean showAll) {
+        List<AppointmentRequest> solicitudes;
         if (showAll)
             solicitudes = this.solicitudTurnoRepository.findAll();
         else
-            solicitudes = this.solicitudTurnoRepository.findAllByEstadoSolicitudPendiente();
+            solicitudes = this.solicitudTurnoRepository.findAllByStatusPendiente();
         return solicitudes.stream()
-                .map(st -> modelMapper.map(st, SolicitudDto.class))
+                .map(st -> modelMapper.map(st, RequestDto.class))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<DetalleSolicitudDto> buscarMisSolicitudTurno(String userId) {
-        return solicitudTurnoRepository.findAllByPacienteUsuarioId(UUID.fromString(userId))
-                .stream().map(st -> modelMapper.map(st, DetalleSolicitudDto.class))
+    public List<RequestDetailsDto> buscarMisSolicitudTurno(String userId) {
+        return solicitudTurnoRepository.findAllByPatientUserId(UUID.fromString(userId))
+                .stream().map(st -> modelMapper.map(st, RequestDetailsDto.class))
                 .collect(Collectors.toList());
 
     }
 
     @Override
-    public DetalleSolicitudDto findOneSolicitudTurno(Long id) {
+    public RequestDetailsDto findOneSolicitudTurno(Long id) {
         return solicitudTurnoRepository.findById(id)
-        .map(st -> modelMapper.map(st, DetalleSolicitudDto.class)).orElse(null);
+        .map(st -> modelMapper.map(st, RequestDetailsDto.class)).orElse(null);
     }
 
     @Override
-    public DetalleSolicitudDto findOneSolicitudTurnoPaciente(Long id, String userId) {
-        return solicitudTurnoRepository.findByIdAndPacienteUsuarioId(id
+    public RequestDetailsDto findOneSolicitudTurnoPaciente(Long id, String userId) {
+        return solicitudTurnoRepository.findByIdAndPatientUserId(id
                 , UUID.fromString(userId)
-        ).map(st -> modelMapper.map(st, DetalleSolicitudDto.class)).orElse(null);
+        ).map(st -> modelMapper.map(st, RequestDetailsDto.class)).orElse(null);
     }
 
     @Override
-    public DetalleSolicitudDto solicitarTurno(SolicitarTurnoDto solicitudTurnoDto, String userId) {
+    public RequestDetailsDto solicitarTurno(RequestAppointmentDto requestAppointmentDto, String userId) {
 
-        EstadoSolicitud estadoSolicitud = estadoSolicitudRepository.findByNombreEstadoSolicitud("Pendiente de Aprobación");
+        RequestStatus requestStatus = estadoSolicitudRepository.findByName("Pendiente de Aprobación");
 
-        SolicitudEstado se = new SolicitudEstado();
-        se.setFechaDesdeSolicitudEstado(LocalDateTime.now());
-        se.setEstadoSolicitud(estadoSolicitud);
+        StatusRequest se = new StatusRequest();
+        se.setFromDate(LocalDateTime.now());
+        se.setRequestStatus(requestStatus);
 
-        SolicitudTurno solicitudTurno = new SolicitudTurno();
-        Especialidad especialidad = new Especialidad();
-        especialidad.setId(solicitudTurnoDto.getEspecialidad().getId());
-        solicitudTurno.setEspecialidad(especialidad);
-        solicitudTurno.getSolicitudEstadoList().add(se);
+        AppointmentRequest appointmentRequest = new AppointmentRequest();
+        Specialty specialty = new Specialty();
+        specialty.setId(requestAppointmentDto.getSpecialty().getId());
+        appointmentRequest.setSpecialty(specialty);
+        appointmentRequest.getStatusRequests().add(se);
 
-        Persona paciente = personaRepository.findByUsuarioId(UUID.fromString(userId));
+        Person patient = personaRepository.findByUserId(UUID.fromString(userId));
 
-        Domicilio domicilio = new Domicilio();
-        domicilio.setId(solicitudTurnoDto.getDomicilioDto().getId());
-        paciente.setDomicilio(domicilio);
+        Address address = new Address();
+        address.setId(requestAppointmentDto.getAddressDto().getId());
+        patient.setAddress(address);
 
-        personaRepository.save(paciente);
-        solicitudTurno.setPaciente(paciente);
+        personaRepository.save(patient);
+        appointmentRequest.setPatient(patient);
 
-        SolicitudTurno solicitud = solicitudTurnoRepository.save(solicitudTurno);
+        appointmentRequest = solicitudTurnoRepository.save(appointmentRequest);
 
-        return modelMapper.map(solicitud, DetalleSolicitudDto.class);
+        return modelMapper.map(appointmentRequest, RequestDetailsDto.class);
     }
 
     @Override
-    public DetalleSolicitudDto rechazarSolicitud(Long id) {
+    public RequestDetailsDto rechazarSolicitud(Long id) {
         return solicitudTurnoRepository.findById(id)
                 .map(st -> {
                     LocalDateTime fechaHoraActual = LocalDateTime.now();
                     if (ultimoEstado(fechaHoraActual, st)) {
-                        EstadoSolicitud rechazado = estadoSolicitudRepository.findByNombreEstadoSolicitud("Rechazada");
-                        SolicitudEstado solicitudEstadoRechazado = new SolicitudEstado();
-                        solicitudEstadoRechazado.setEstadoSolicitud(rechazado);
-                        st.getSolicitudEstadoList().add(solicitudEstadoRechazado);
+                        RequestStatus rechazado = estadoSolicitudRepository.findByName("Rechazada");
+                        StatusRequest solicitudEstadoRechazado = new StatusRequest();
+                        solicitudEstadoRechazado.setRequestStatus(rechazado);
+                        st.getStatusRequests().add(solicitudEstadoRechazado);
                     }
                     return solicitudTurnoRepository.save(st);
                 })
-                .map(st -> modelMapper.map(st, DetalleSolicitudDto.class))
+                .map(st -> modelMapper.map(st, RequestDetailsDto.class))
                 .orElse(null);
     }
 
@@ -125,12 +125,12 @@ public class SolicitudTurnoServiceImpl implements SolicitudTurnoService {
                 .orElse(false);
     }
 
-    private boolean ultimoEstado(LocalDateTime time, SolicitudTurno st) {
+    private boolean ultimoEstado(LocalDateTime time, AppointmentRequest st) {
         boolean ultimoEstado = false;
-        for (SolicitudEstado se : st.getSolicitudEstadoList()) {
-            if (se.getEstadoSolicitud().getNombreEstadoSolicitud().matches("Pendiente de Aprobación")
-                    && se.getFechaHastaSolicitudEstado() == null) {
-                se.setFechaHastaSolicitudEstado(time);
+        for (StatusRequest se : st.getStatusRequests()) {
+            if (se.getRequestStatus().getName().matches("Pendiente de Aprobación")
+                    && se.getToDate() == null) {
+                se.setToDate(time);
                 ultimoEstado = true;
                 break;
             }

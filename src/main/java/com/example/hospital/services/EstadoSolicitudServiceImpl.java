@@ -1,6 +1,6 @@
 package com.example.hospital.services;
 
-import com.example.hospital.entities.EstadoSolicitud;
+import com.example.hospital.entities.RequestStatus;
 import com.example.hospital.repositories.EstadoSolicitudRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,40 +16,39 @@ public class EstadoSolicitudServiceImpl implements EstadoSolicitudService {
     }
 
     @Override
-    public List<EstadoSolicitud> findAll(boolean showDeleted) {
-        if(showDeleted)
+    public List<RequestStatus> findAll(boolean showDeleted) {
+        if (showDeleted)
             return estadoSolicitudRepository.findAll();
-        else return estadoSolicitudRepository.findByFechaBajaEstadoSolicitudIsNull();
+        else return estadoSolicitudRepository.findByDeletedAtIsNull();
     }
 
     @Override
-    public EstadoSolicitud findById(Long id) {
+    public RequestStatus findById(Long id) {
         return estadoSolicitudRepository
                 .findById(id)
                 .orElse(null);
     }
 
     @Override
-    public EstadoSolicitud save(EstadoSolicitud estadoSolicitud) {
+    public RequestStatus save(RequestStatus requestStatus) {
         return estadoSolicitudRepository
-                .save(estadoSolicitud);
+                .save(requestStatus);
     }
 
     @Override
-    public EstadoSolicitud update(Long id, EstadoSolicitud estadoSolicitud) {
+    public RequestStatus update(Long id, RequestStatus requestStatus) {
         return estadoSolicitudRepository.findById(id)
-                .map(es -> estadoSolicitudRepository.save(estadoSolicitud))
+                .map(es -> estadoSolicitudRepository.save(requestStatus))
                 .orElse(null);
     }
 
     @Override
-    public EstadoSolicitud delete(Long id) {
+    public RequestStatus delete(Long id) {
         return estadoSolicitudRepository.findById(id)
                 .map(es -> {
-                    es.setFechaBajaEstadoSolicitud(LocalDateTime.now());
+                    es.setDeletedAt(LocalDateTime.now());
                     return estadoSolicitudRepository.save(es);
                 }).orElse(null);
     }
-
 
 }

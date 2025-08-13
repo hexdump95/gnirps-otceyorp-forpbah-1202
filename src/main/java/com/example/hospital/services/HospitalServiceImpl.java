@@ -19,7 +19,7 @@ public class HospitalServiceImpl implements HospitalService {
     public List<Hospital> findAll(boolean showDeleted) {
         if(showDeleted)
             return hospitalRepository.findAll();
-        else return hospitalRepository.findByFechaBajaHospitalIsNull();
+        else return hospitalRepository.findByDeletedAtIsNull();
     }
 
     @Override
@@ -46,11 +46,10 @@ public class HospitalServiceImpl implements HospitalService {
     public Hospital delete(Long id) {
         return hospitalRepository.findById(id)
                 .map(h -> {
-                    h.setFechaBajaHospital(LocalDateTime.now());
+                    h.setDeletedAt(LocalDateTime.now());
                     return hospitalRepository.save(h);
                 }).orElse(null);
     }
-
 
 }
 

@@ -1,6 +1,6 @@
 package com.example.hospital.services;
 
-import com.example.hospital.entities.Localidad;
+import com.example.hospital.entities.District;
 import com.example.hospital.repositories.LocalidadRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,37 +17,37 @@ public class LocalidadServiceImpl implements LocalidadService {
     }
 
     @Override
-    public List<Localidad> findAll(boolean showDeleted) {
+    public List<District> findAll(boolean showDeleted) {
         if(showDeleted)
             return localidadRepository.findAll();
-        else return localidadRepository.findByFechaBajaLocalidadIsNull();
+        else return localidadRepository.findByDeletedAtIsNull();
     }
 
     @Override
-    public Localidad findById(Long id) {
+    public District findById(Long id) {
         return localidadRepository
                 .findById(id)
                 .orElse(null);
     }
 
     @Override
-    public Localidad save(Localidad localidad) {
+    public District save(District localidad) {
         return localidadRepository
                 .save(localidad);
     }
 
     @Override
-    public Localidad update(Long id, Localidad localidad) {
+    public District update(Long id, District localidad) {
         return localidadRepository.findById(id)
                 .map(l -> localidadRepository.save(localidad))
                 .orElse(null);
     }
 
     @Override
-    public Localidad delete(Long id) {
+    public District delete(Long id) {
         return localidadRepository.findById(id)
                 .map(l -> {
-                    l.setFechaBajaLocalidad(LocalDateTime.now());
+                    l.setDeletedAt(LocalDateTime.now());
                     return localidadRepository.save(l);
                 }).orElse(null);
     }

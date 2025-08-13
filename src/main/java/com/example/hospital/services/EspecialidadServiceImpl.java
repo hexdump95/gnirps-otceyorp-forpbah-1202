@@ -1,6 +1,6 @@
 package com.example.hospital.services;
 
-import com.example.hospital.entities.Especialidad;
+import com.example.hospital.entities.Specialty;
 import com.example.hospital.repositories.EspecialidadRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,37 +16,37 @@ public class EspecialidadServiceImpl implements EspecialidadService {
     }
 
     @Override
-    public List<Especialidad> findAll(boolean showDeleted) {
+    public List<Specialty> findAll(boolean showDeleted) {
         if(showDeleted)
             return especialidadRepository.findAll();
-        else return especialidadRepository.findByFechaBajaEspecialidadIsNull();
+        else return especialidadRepository.findByDeletedAtIsNull();
     }
 
     @Override
-    public Especialidad findById(Long id) {
+    public Specialty findById(Long id) {
         return especialidadRepository
                 .findById(id)
                 .orElse(null);
     }
 
     @Override
-    public Especialidad save(Especialidad especialidad) {
+    public Specialty save(Specialty specialty) {
         return especialidadRepository
-                .save(especialidad);
+                .save(specialty);
     }
 
     @Override
-    public Especialidad update(Long id, Especialidad especialidad) {
+    public Specialty update(Long id, Specialty specialty) {
         return especialidadRepository.findById(id)
-                .map(e -> especialidadRepository.save(especialidad))
+                .map(e -> especialidadRepository.save(specialty))
                 .orElse(null);
     }
 
     @Override
-    public Especialidad delete(Long id) {
+    public Specialty delete(Long id) {
         return especialidadRepository.findById(id)
                 .map(e -> {
-                    e.setFechaBajaEspecialidad(LocalDateTime.now());
+                    e.setDeletedAt(LocalDateTime.now());
                     return especialidadRepository.save(e);
                 }).orElse(null);
     }

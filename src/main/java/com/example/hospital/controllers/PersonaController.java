@@ -1,8 +1,8 @@
 package com.example.hospital.controllers;
 
 import com.example.hospital.Routes;
-import com.example.hospital.dtos.PersonaDto;
-import com.example.hospital.entities.Persona;
+import com.example.hospital.dtos.PersonDto;
+import com.example.hospital.entities.Person;
 import com.example.hospital.repositories.PersonaRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -32,28 +32,28 @@ public class PersonaController {
 
     @Operation
     @GetMapping
-    public List<Persona> findAllPersonas() {
+    public List<Person> findAllPersonas() {
         return personaRepository.findAll();
     }
 
     @Operation
     @GetMapping("/especialidades/{especialidadId}")
-    public List<PersonaDto> findMedicoByEspecialidad(@PathVariable Long especialidadId) {
-        return personaRepository.findAllByMedicoEspecialidadId(especialidadId)
-                .stream().map(p -> modelMapper.map(p, PersonaDto.class))
+    public List<PersonDto> findMedicoByEspecialidad(@PathVariable Long especialidadId) {
+        return personaRepository.findAllBySpecialtyId(especialidadId)
+                .stream().map(p -> modelMapper.map(p, PersonDto.class))
                 .collect(Collectors.toList());
     }
 
     @Operation
     @PostMapping
-    public ResponseEntity<Persona> savePersona(@RequestBody Persona persona) {
+    public ResponseEntity<Person> savePersona(@RequestBody Person persona) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(personaRepository.save(persona));
     }
 
     @Operation
     @PutMapping("/{id}")
-    public ResponseEntity<Persona> putPersona(@PathVariable Long id, @RequestBody Persona persona){
+    public ResponseEntity<Person> putPersona(@PathVariable Long id, @RequestBody Person persona){
         return personaRepository.findById(id)
                 .map(p -> personaRepository.save(persona))
                 .map(ResponseEntity::ok)

@@ -1,8 +1,10 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
+    url: jdbc:postgresql://localhost:5432/db_nuevo2
+    username: admin
+    password: secret
+    driverClassName: org.postgresql.Driver
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: create-drop

@@ -1,12 +1,12 @@
 package com.example.hospital.services;
-import com.example.hospital.entities.Localidad;
+import com.example.hospital.entities.District;
 
 import java.util.List;
 
 public interface LocalidadService {
-    List<Localidad> findAll(boolean showDeleted);
-    Localidad findById(Long id);
-    Localidad save(Localidad localidad);
-    Localidad update(Long id, Localidad localidad);
-    Localidad delete(Long id);
+    List<District> findAll(boolean showDeleted);
+    District findById(Long id);
+    District save(District district);
+    District update(Long id, District district);
+    District delete(Long id);
 }

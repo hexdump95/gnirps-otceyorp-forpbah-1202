@@ -1,7 +1,7 @@
 package com.example.hospital.controllers;
 
-import com.example.hospital.entities.EstadoTurno;
-import com.example.hospital.entities.Turno;
+import com.example.hospital.entities.AppointmentStatus;
+import com.example.hospital.entities.Appointment;
 import com.example.hospital.repositories.EstadoTurnoRepository;
 import com.example.hospital.repositories.TurnoRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,13 +26,13 @@ public class TurnoController {
 
     @Operation
     @GetMapping
-    public List<Turno> findAllTurnos() {
+    public List<Appointment> findAllTurnos() {
         return turnoRepository.findAll();
     }
 
     @Operation
     @GetMapping("/{id}")
-    public ResponseEntity<Turno> findOneTurno(@PathVariable Long id) {
+    public ResponseEntity<Appointment> findOneTurno(@PathVariable Long id) {
         return turnoRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(); // TODO
@@ -40,16 +40,16 @@ public class TurnoController {
 
     @Operation(summary = "Crear Turno")
     @PostMapping
-    public ResponseEntity<Turno> saveTurno(@RequestBody Turno turno) {
-        EstadoTurno enEspera = estadoTurnoRepository.findByNombreEstadoTurno("En espera");
-        turno.setEstadoTurno(enEspera);
+    public ResponseEntity<Appointment> saveTurno(@RequestBody Appointment turno) {
+        AppointmentStatus enEspera = estadoTurnoRepository.findByName("En espera");
+        turno.setAppointmentStatus(enEspera);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(turnoRepository.save(turno));
     }
 
     @Operation
     @PutMapping("/{id}")
-    public ResponseEntity<Turno> putTurno(@PathVariable Long id, @RequestBody Turno turno){
+    public ResponseEntity<Appointment> putTurno(@PathVariable Long id, @RequestBody Appointment turno){
         return turnoRepository.findById(id)
                 .map(t -> turnoRepository.save(turno))
                 .map(ResponseEntity::ok)

@@ -1,7 +1,7 @@
 package com.example.hospital.controllers;
 
 import com.example.hospital.Routes;
-import com.example.hospital.entities.Especialidad;
+import com.example.hospital.entities.Specialty;
 import com.example.hospital.exceptions.NotFoundException;
 import com.example.hospital.services.EspecialidadService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,7 +27,7 @@ public class EspecialidadController {
 
     @Operation(summary = "Listar Especialidades")
     @GetMapping
-    public List<Especialidad> findAllEspecialidades(
+    public List<Specialty> findAllEspecialidades(
             @RequestParam(defaultValue = "false") boolean showDeleted
     ) {
         return especialidadService.findAll(showDeleted);
@@ -35,8 +35,8 @@ public class EspecialidadController {
 
     @Operation(summary = "Detalle Especialidad")
     @GetMapping("/{id}")
-    public ResponseEntity<Especialidad> findOneEspecialidad(@PathVariable Long id) throws NotFoundException {
-        Especialidad especialidad = especialidadService.findById(id);
+    public ResponseEntity<Specialty> findOneEspecialidad(@PathVariable Long id) throws NotFoundException {
+        Specialty especialidad = especialidadService.findById(id);
         if(especialidad != null)
             return ResponseEntity.ok(especialidad);
         else throw new NotFoundException(id);
@@ -46,7 +46,7 @@ public class EspecialidadController {
     @Operation(summary = "Crear Especialidad")
     @SecurityRequirement(name = "bearer-key")
     @PostMapping
-    public ResponseEntity<Especialidad> saveEspecialidad(@RequestBody Especialidad especialidad) {
+    public ResponseEntity<Specialty> saveEspecialidad(@RequestBody Specialty especialidad) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(especialidadService.save(especialidad));
     }
@@ -55,8 +55,8 @@ public class EspecialidadController {
     @Operation(summary = "Editar Especialidad")
     @SecurityRequirement(name = "bearer-key")
     @PutMapping("/{id}")
-    public ResponseEntity<Especialidad> putEspecialidad(@PathVariable Long id, @RequestBody Especialidad especialidad) throws NotFoundException {
-        Especialidad entity = especialidadService.update(id, especialidad);
+    public ResponseEntity<Specialty> putEspecialidad(@PathVariable Long id, @RequestBody Specialty especialidad) throws NotFoundException {
+        Specialty entity = especialidadService.update(id, especialidad);
         if(entity != null)
             return ResponseEntity.ok(entity);
         else throw new NotFoundException(id);
@@ -67,7 +67,7 @@ public class EspecialidadController {
     @SecurityRequirement(name = "bearer-key")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteEspecialidad(@PathVariable Long id) throws NotFoundException {
-        Especialidad entity = especialidadService.delete(id);
+        Specialty entity = especialidadService.delete(id);
         if(entity != null)
             return ResponseEntity.ok(entity);
         else throw new NotFoundException(id);

@@ -1,17 +1,17 @@
 package com.example.hospital.services;
 
-import com.example.hospital.dtos.DetalleSolicitudDto;
-import com.example.hospital.dtos.SolicitarTurnoDto;
-import com.example.hospital.dtos.SolicitudDto;
+import com.example.hospital.dtos.RequestDetailsDto;
+import com.example.hospital.dtos.RequestAppointmentDto;
+import com.example.hospital.dtos.RequestDto;
 
 import java.util.List;
 
 public interface SolicitudTurnoService {
-    List<SolicitudDto> buscarTodasSolicitudTurno(boolean showAll);
-    List<DetalleSolicitudDto> buscarMisSolicitudTurno(String userId);
-    DetalleSolicitudDto findOneSolicitudTurno(Long id);
-    DetalleSolicitudDto findOneSolicitudTurnoPaciente(Long id, String userId);
-    DetalleSolicitudDto solicitarTurno(SolicitarTurnoDto solicitudTurnoDto, String userId);
-    DetalleSolicitudDto rechazarSolicitud(Long id);
+    List<RequestDto> buscarTodasSolicitudTurno(boolean showAll);
+    List<RequestDetailsDto> buscarMisSolicitudTurno(String userId);
+    RequestDetailsDto findOneSolicitudTurno(Long id);
+    RequestDetailsDto findOneSolicitudTurnoPaciente(Long id, String userId);
+    RequestDetailsDto solicitarTurno(RequestAppointmentDto requestAppointmentDto, String userId);
+    RequestDetailsDto rechazarSolicitud(Long id);
     boolean cancelarSolicitud(Long id);
 }

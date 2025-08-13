@@ -1,7 +1,7 @@
 package com.example.hospital.controllers;
 
 import com.example.hospital.Routes;
-import com.example.hospital.entities.EstadoTurno;
+import com.example.hospital.entities.AppointmentStatus;
 import com.example.hospital.exceptions.NotFoundException;
 import com.example.hospital.services.EstadoTurnoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +28,7 @@ public class EstadoTurnoController {
     @PreAuthorize(value = "hasAnyRole('MEDICO', 'RECEPCIONISTA', 'ADMIN')")
     @Operation(summary = "Listar EstadoTurnoes")
     @GetMapping
-    public List<EstadoTurno> findAllEstadoTurnoes(
+    public List<AppointmentStatus> findAllEstadoTurnoes(
             @RequestParam(defaultValue = "false") boolean showDeleted
     ) {
         return estadoTurnoService.findAll(showDeleted);
@@ -37,8 +37,8 @@ public class EstadoTurnoController {
     @PreAuthorize(value = "hasAnyRole('MEDICO', 'RECEPCIONISTA', 'ADMIN')")
     @Operation(summary = "Detalle EstadoTurno")
     @GetMapping("/{id}")
-    public ResponseEntity<EstadoTurno> findOneEstadoTurno(@PathVariable Long id) throws NotFoundException {
-        EstadoTurno estadoTurno = estadoTurnoService.findById(id);
+    public ResponseEntity<AppointmentStatus> findOneEstadoTurno(@PathVariable Long id) throws NotFoundException {
+        AppointmentStatus estadoTurno = estadoTurnoService.findById(id);
         if(estadoTurno != null)
             return ResponseEntity.ok(estadoTurno);
         else throw new NotFoundException(id);
@@ -48,7 +48,7 @@ public class EstadoTurnoController {
     @Operation(summary = "Crear EstadoTurno")
     @SecurityRequirement(name = "bearer-key")
     @PostMapping
-    public ResponseEntity<EstadoTurno> saveEstadoTurno(@RequestBody EstadoTurno estadoTurno) {
+    public ResponseEntity<AppointmentStatus> saveEstadoTurno(@RequestBody AppointmentStatus estadoTurno) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(estadoTurnoService.save(estadoTurno));
     }
@@ -57,8 +57,8 @@ public class EstadoTurnoController {
     @Operation(summary = "Editar EstadoTurno")
     @SecurityRequirement(name = "bearer-key")
     @PutMapping("/{id}")
-    public ResponseEntity<EstadoTurno> putEstadoTurno(@PathVariable Long id, @RequestBody EstadoTurno estadoTurno) throws NotFoundException {
-        EstadoTurno entity = estadoTurnoService.update(id, estadoTurno);
+    public ResponseEntity<AppointmentStatus> putEstadoTurno(@PathVariable Long id, @RequestBody AppointmentStatus estadoTurno) throws NotFoundException {
+        AppointmentStatus entity = estadoTurnoService.update(id, estadoTurno);
         if(entity != null)
             return ResponseEntity.ok(entity);
         else throw new NotFoundException(id);
@@ -69,7 +69,7 @@ public class EstadoTurnoController {
     @SecurityRequirement(name = "bearer-key")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteEstadoTurno(@PathVariable Long id) throws NotFoundException {
-        EstadoTurno entity = estadoTurnoService.delete(id);
+        AppointmentStatus entity = estadoTurnoService.delete(id);
         if(entity != null)
             return ResponseEntity.ok(entity);
         else throw new NotFoundException(id);

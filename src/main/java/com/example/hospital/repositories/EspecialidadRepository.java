@@ -1,12 +1,12 @@
 package com.example.hospital.repositories;
 
-import com.example.hospital.entities.Especialidad;
+import com.example.hospital.entities.Specialty;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface EspecialidadRepository extends JpaRepository<Especialidad, Long> {
-    List<Especialidad> findByFechaBajaEspecialidadIsNull();
+public interface EspecialidadRepository extends JpaRepository<Specialty, Long> {
+    List<Specialty> findByDeletedAtIsNull();
 }

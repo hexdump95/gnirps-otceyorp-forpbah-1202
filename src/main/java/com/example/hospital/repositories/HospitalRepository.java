@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface HospitalRepository extends JpaRepository<Hospital, Long> {
-    List<Hospital> findByFechaBajaHospitalIsNull();
+    List<Hospital> findByDeletedAtIsNull();
 }

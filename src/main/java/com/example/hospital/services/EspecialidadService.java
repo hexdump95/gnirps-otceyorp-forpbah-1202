@@ -1,13 +1,13 @@
 package com.example.hospital.services;
 
-import com.example.hospital.entities.Especialidad;
+import com.example.hospital.entities.Specialty;
 
 import java.util.List;
 
 public interface EspecialidadService {
-    List<Especialidad> findAll(boolean showDeleted);
-    Especialidad findById(Long id);
-    Especialidad save(Especialidad especialidad);
-    Especialidad update(Long id, Especialidad especialidad);
-    Especialidad delete(Long id);
+    List<Specialty> findAll(boolean showDeleted);
+    Specialty findById(Long id);
+    Specialty save(Specialty specialty);
+    Specialty update(Long id, Specialty specialty);
+    Specialty delete(Long id);
 }
